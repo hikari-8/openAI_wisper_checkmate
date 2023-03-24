@@ -33,6 +33,12 @@ export default withFileUpload(async (req, res) => {
 
   const { text, error } = await response.json();
   if (response.ok) {
+    //テキストから宿泊番号を抽出する
+    const reservationNumber = extractReservationNumber(text);
+    // 宿泊番号があれば、次のフェーズへ
+    if (reservationNumber) {
+      console.log('reservationNumber', reservationNumber);
+    }
     res.status(200).json({ text: text });
   } else {
     console.log('OPEN AI ERROR:');
@@ -40,3 +46,13 @@ export default withFileUpload(async (req, res) => {
     res.status(400).send(new Error());
   }
 });
+
+// reservation numberの正規表現パターンを定義する
+const RESERVATION_NUMBER_PATTERN = /[0-9a-zA-Z]{4}/;
+function extractReservationNumber(text: string) {
+  const match = text.match(RESERVATION_NUMBER_PATTERN);
+  if (match && match[1]) {
+    return match[1];
+  }
+  return null;
+}
